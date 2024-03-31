@@ -12,3 +12,9 @@ steps:
       - -f
       - Dockerfile
     id: Build
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME
+      - --all-tags
+    id: Push
