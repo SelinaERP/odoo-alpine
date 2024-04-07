@@ -1,0 +1,35 @@
+services:
+
+  odoo-database:
+    image: postgres:15
+    container_name: odoo-database
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - odoo-database-data:/var/lib/postgresql/data/pgdata
+
+  odoo-erp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: odoo-erp
+    ports:
+      - "80:8080"
+    env_file:
+      - .env
+    tty: true
+    depends_on:
+      - odoo-database
+    links:
+      - odoo-database
+    volumes:
+      - ./addons:/mnt/efishery_addons
+      - odoo-erp-data:/mnt
+    platform: linux/amd64
+
+volumes:
+  odoo-database-data:
+    driver: local
+  odoo-erp-data: {}

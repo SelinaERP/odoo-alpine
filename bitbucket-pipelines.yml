@@ -1,0 +1,27 @@
+definitions:
+  services:
+    docker:
+      image: google/cloud-sdk:alpine
+  steps:
+    - step: &PushGCPRegistry
+      name: Deployment Server
+      runs-on:
+        - self.hosted
+        - preproduction
+        - preprodrunner
+      services:
+        - docker
+      caches:
+        - docker
+
+pipelines:
+  tags:
+    v17.0-*:
+      - step:
+          <<: *PushGCPRegistry
+          name: Build Odoo Enterprise v17.0
+          script:
+            - echo ${BITBUCKET_TAG}
+            - echo $GCP_JSON_KEY | base64 -d > ./gcloud-api-key.json
+            - gcloud auth activate-service-account --key-file gcloud-api-key.json
+            - gcloud config set project $GCLOUD_PROJECT
