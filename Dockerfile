@@ -87,7 +87,7 @@ RUN rm -rf /build
 FROM python:3.10-alpine as main
 
 ENV LANG C.UTF-8
-ENV ODOO_VERSION 17.0
+ENV ODOO_VERSION 14.0
 ENV ODOO_RC /etc/odoo/odoo.conf
 
 # Install some dependencies
