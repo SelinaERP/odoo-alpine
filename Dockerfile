@@ -82,10 +82,8 @@ COPY ./usr/local/bin/odoo.sh /usr/local/bin/odoo.sh
 COPY ./usr/local/bin/wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Clear Installation cache
-RUN find /usr/local \
-    \( -type d -a -name __pycache__ \) \
-    -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-    -exec rm -rf '{}' + && \
+RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
+    find /mnt/addons \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
     rm -rf /build
 
 FROM python:3.10-alpine as main
