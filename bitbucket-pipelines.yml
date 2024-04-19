@@ -25,7 +25,8 @@ pipelines:
             - echo $GCP_JSON_KEY | base64 -d > ./gcloud-api-key.json
             - gcloud auth activate-service-account --key-file gcloud-api-key.json
             - gcloud config set project $GCLOUD_PROJECT
-    v14.0-*:
+  branches:
+    v14.0:
       - step:
           <<: *PushGCPRegistry
           name: Build Odoo Community v14.0
