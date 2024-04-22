@@ -39,8 +39,6 @@ RUN apk add -q --no-cache \
     npm \
     openldap-dev \
     postgresql-dev \
-    python3 \
-    py3-pip \
     python3-dev \
     rsync \
     ttf-dejavu \
@@ -51,14 +49,14 @@ RUN apk add -q --no-cache \
     zlib-dev
 
 RUN npm install -g less rtlcss postcss
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /bin/wkhtmltopdf /bin/wkhtmltopdf
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /bin/wkhtmltoimage /bin/wkhtmltoimage
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /bin/libwkhtmltox.so /bin/libwkhtmltox.so
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /bin/libwkhtmltox.so.0 /bin/libwkhtmltox.so.0
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /bin/libwkhtmltox.so.0.12 /bin/libwkhtmltox.so.0.12
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /lib/libssl.so.1.1 /lib/libssl.so.1.1
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.10-0.12.6-full /lib/libcrypto.so.1.1 /lib/libcrypto.so.1.1
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /bin/wkhtmltopdf /bin/wkhtmltopdf
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /bin/wkhtmltoimage /bin/wkhtmltoimage
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /bin/libwkhtmltox.so /bin/libwkhtmltox.so
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /bin/libwkhtmltox.so.0 /bin/libwkhtmltox.so.0
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /bin/libwkhtmltox.so.0.12 /bin/libwkhtmltox.so.0.12
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /lib/libssl.so.3 /lib/libssl.so.3
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.19.0-0.12.6-full /usr/lib/libssl.so.3 /usr/lib/libssl.so.3
 
 # Create addons directory
 RUN mkdir /mnt/addons
@@ -66,9 +64,6 @@ RUN mkdir /mnt/addons
 # Add Odoo Community
 ADD https://github.com/odoo/odoo/archive/refs/heads/${ODOO_VERSION}.zip .
 RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
-    sed -i "s/gevent==20.9.0 ; python_version >= '3.8'/gevent==20.9.0 ; python_version > '3.7' and python_version <= '3.9'\ngevent==21.8.0 ; python_version > '3.9'  # (Jammy)/g" requirements.txt && \
-    sed -i "s/greenlet==0.4.17 ; python_version > '3.7'/greenlet==0.4.17 ; python_version > '3.7' and python_version <= '3.9'\ngreenlet==1.1.2 ; python_version  > '3.9'  # (Jammy)/g" requirements.txt && \
-    sed -i "s/pyopenssl==19.0.0/pyopenssl==19.0.0 ; python_version > '3.7' and python_version <= '3.8'\npyopenssl==22.1.0 ; python_version > '3.8'  # (Fanani)/g" requirements.txt && \
     pip3 install -q --upgrade pip && \
     pip3 install -q --upgrade setuptools && \
     echo 'INPUT ( libldap.so )' > /usr/lib/libldap_r.so && \
