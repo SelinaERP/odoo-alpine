@@ -10,18 +10,16 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 WORKDIR /build
 
 # Install some dependencies
-RUN apk add --no-cache \
+RUN apk add -q --no-cache \
     bash \
     build-base \
     ca-certificates \
-    cairo-dev \
     fontconfig \
     font-noto-cjk \
     freetype \
     freetype-dev \
     grep \
     jpeg-dev \
-    icu-data-full \
     libev-dev \
     libevent-dev \
     libffi-dev \
@@ -29,6 +27,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     libpng \
     libpng-dev \
+    libssl3 \
     libstdc++ \
     libx11 \
     libxcb \
@@ -38,13 +37,12 @@ RUN apk add --no-cache \
     libxslt-dev \
     nodejs \
     npm \
-    nginx \
     openldap-dev \
     postgresql-dev \
-    py-pip \
+    python3 \
+    py3-pip \
     python3-dev \
-    supervisor \
-    syslog-ng \
+    rsync \
     ttf-dejavu \
     ttf-droid \
     ttf-freefont \
@@ -53,8 +51,14 @@ RUN apk add --no-cache \
     zlib-dev
 
 RUN npm install -g less rtlcss postcss
-COPY --from=madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 /bin/wkhtmltopdf /bin/wkhtmltopdf
-COPY --from=madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 /bin/wkhtmltoimage /bin/wkhtmltoimage
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/wkhtmltopdf /bin/wkhtmltopdf
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/wkhtmltoimage /bin/wkhtmltoimage
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so /bin/libwkhtmltox.so
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so.0 /bin/libwkhtmltox.so.0
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so.0.12 /bin/libwkhtmltox.so.0.12
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /lib/libssl.so.1.1 /lib/libssl.so.1.1
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /lib/libcrypto.so.1.1 /lib/libcrypto.so.1.1
 
 # Create addons directory
 RUN mkdir /mnt/addons
@@ -69,15 +73,18 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     python3 setup.py install && \
     mkdir -p /mnt/addons/community && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
+
+# Add some scripts
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/entrypoint.sh /usr/local/bin/odoo.sh
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/wait-for-psql.py /usr/local/bin/wait-for-psql.py
+RUN chmod 755 /usr/local/bin/odoo.sh && chmod 755 /usr/local/bin/wait-for-psql.py
 
 # Clear Installation cache
 RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
     find /mnt/addons \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
     rm -rf /build
 
-FROM python:3.10-alpine as main
+FROM python:3.11-alpine as main
 
 ENV LANG C.UTF-8
 ENV ODOO_VERSION 17.0
@@ -112,18 +119,15 @@ COPY --from=builder /sbin /sbin
 COPY --from=builder /usr/sbin /usr/sbin
 COPY --from=builder --chown=nginx:nginx /mnt /mnt
 
-# Set permissions
-RUN chown nginx:nginx -R /etc/odoo && chmod 755 /etc/odoo && \
-    chown nginx:nginx -R /mnt && chmod 755 /mnt && \
-    chmod 777 /usr/local/bin/odoo.sh && chmod 777 /usr/local/bin/wait-for-psql.py
-
 # Copy entire supervisor configurations
 COPY ./etc/ /etc/
-COPY ./write_config.py write_config.py
 
 # Copy init script
+COPY ./write_config.py /write_config.py
 COPY ./entrypoint.sh /entrypoint.sh
 
 # Expose web service
 EXPOSE 8080
+
+WORKDIR /mnt
 ENTRYPOINT ["/entrypoint.sh"]
