@@ -1,5 +1,7 @@
-FROM python:3.10-alpine
+FROM python:3.10-alpine as builder
 LABEL maintainer="Fanani M. Ihsan"
+
+RUN echo "Build Odoo Community Edition"
 
 ENV LANG C.UTF-8
 ENV ODOO_VERSION 17.0
@@ -51,51 +53,77 @@ RUN apk add --no-cache \
     zlib-dev
 
 RUN npm install -g less rtlcss postcss
-COPY --from=madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 \
-    /bin/wkhtmltopdf /bin/wkhtmltopdf
-COPY --from=madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 \
-    /bin/wkhtmltoimage /bin/wkhtmltoimage
+COPY --from=madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 /bin/wkhtmltopdf /bin/wkhtmltopdf
+COPY --from=madnight/alpine-wkhtmltopdf-builder:0.12.5-alpine3.10 /bin/wkhtmltoimage /bin/wkhtmltoimage
 
-# Add Core Odoo
+# Create addons directory
+RUN mkdir /mnt/addons
+
+# Add Odoo Community
 ADD https://github.com/odoo/odoo/archive/refs/heads/${ODOO_VERSION}.zip .
-RUN unzip ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
-    pip install setuptools --upgrade && \
+RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
+    pip3 install -q --upgrade pip && \
+    pip3 install -q --upgrade setuptools && \
     echo 'INPUT ( libldap.so )' > /usr/lib/libldap_r.so && \
-    pip3 install -r requirements.txt --no-cache-dir  && \
-    python setup.py install
-# Set Commit ID
-RUN export ODOO_SHA=$(curl -s 'https://api.github.com/repos/odoo/odoo/commits/17.0?per_page=1' | python3 -c "import sys, json; print(json.load(sys.stdin)['sha'])")
-
-# Clear Installation cache
-RUN mkdir -p /mnt/addons && mv /build/odoo-${ODOO_VERSION}/addons /mnt/addons/community && rm -rf /build
-
-WORKDIR /
-
-# Fix alpine python path
+    pip3 install -q --no-cache-dir -r requirements.txt && \
+    python3 setup.py install && \
+    mkdir -p /mnt/addons/community && \
+    rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/entrypoint.sh /usr/local/bin/odoo.sh
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
-# Copy config files
-COPY ./etc/nginx/http.d/default.conf /etc/nginx/http.d/default.conf
-COPY ./etc/odoo/odoo.conf /etc/odoo/odoo.conf
+# Clear Installation cache
+RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
+    find /mnt/addons \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
+    rm -rf /build
 
-# Copy entire supervisor configurations
-COPY ./etc/profile.d/odoo.sh /etc/profile.d/odoo.sh
-COPY ./etc/supervisord.conf /etc/supervisord.conf
-COPY ./etc/syslog-ng/conf.d/odoo.conf /etc/syslog-ng/conf.d/odoo.conf
-COPY ./etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
-COPY ./etc/supervisor/conf.d/odoo.conf /etc/supervisor/conf.d/odoo.conf
+FROM python:3.10-alpine as main
+
+ENV LANG C.UTF-8
+ENV ODOO_VERSION 17.0
+ENV ODOO_RC /etc/odoo/odoo.conf
+
+# Install some dependencies
+RUN apk add -q --no-cache \
+    bash \
+    fontconfig \
+    font-noto-cjk \
+    freetype \
+    nginx \
+    supervisor \
+    syslog-ng \
+    ttf-dejavu \
+    ttf-droid \
+    ttf-freefont \
+    ttf-liberation
+
+# Change the ownership working directory
+RUN chown nginx:nginx -R /mnt
+
+# Copy base libs
+COPY --from=builder /lib /lib
+COPY --from=builder /var/lib /var/lib
+COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /bin /bin
+COPY --from=builder /usr/bin /usr/bin
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /sbin /sbin
+COPY --from=builder /usr/sbin /usr/sbin
+COPY --from=builder --chown=nginx:nginx /mnt /mnt
 
 # Set permissions
 RUN chown nginx:nginx -R /etc/odoo && chmod 755 /etc/odoo && \
     chown nginx:nginx -R /mnt && chmod 755 /mnt && \
     chmod 777 /usr/local/bin/odoo.sh && chmod 777 /usr/local/bin/wait-for-psql.py
 
-COPY ./etc/nginx/http.d/default.conf /etc/nginx/http.d/default.conf
+# Copy entire supervisor configurations
+COPY ./etc/ /etc/
 COPY ./write_config.py write_config.py
+
+# Copy init script
 COPY ./entrypoint.sh /entrypoint.sh
 
-# # Expose web service
+# Expose web service
 EXPOSE 8080
-
 ENTRYPOINT ["/entrypoint.sh"]

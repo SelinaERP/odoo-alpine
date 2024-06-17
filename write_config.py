@@ -3,51 +3,55 @@ import os
 from configparser import ConfigParser
 from odoo.tools import config as odoo_config
 
-ODOO_CONFIG_FILE = '/etc/odoo/odoo.conf'
+ODOO_CONFIG_FILE = os.environ['ODOO_RC']
 ODOO_CONFIG_SECTIONS = ["options"]
-toml_config = {}
-for section in ODOO_CONFIG_SECTIONS:
-    toml_config[section] = {}
+CONFIG_MAPPER = {}
 
 config_parser = ConfigParser()
-env_config = os.environ
-for variable, value in env_config.items():
-    for section in ODOO_CONFIG_SECTIONS:
-        try:
-            option, key = variable.lower().split("__")
-            if option in ODOO_CONFIG_SECTIONS:
-                toml_config[option][key] = value
-        except ValueError:
-            # skip invalid config
-            pass
+config_parser.read(ODOO_CONFIG_FILE)
+for section in config_parser.sections():
+    if section not in ODOO_CONFIG_SECTIONS:
+        ODOO_CONFIG_SECTIONS.append(section)
+
+for section in ODOO_CONFIG_SECTIONS:
+    CONFIG_MAPPER[section] = {}
+    if section not in config_parser.keys():
+        continue
+    for key, value in config_parser[section].items():
+        CONFIG_MAPPER[section][key] = value
+
+# add some config from OS environment
+for variable, value in os.environ.items():
+    try:
+        option, key = variable.lower().split("__")
+        if option in ODOO_CONFIG_SECTIONS:
+            CONFIG_MAPPER[option][key] = value
+    except ValueError:
+        # skip invalid config
+        pass
 
 config_maps = odoo_config.casts
-
-# add section
 for section in ODOO_CONFIG_SECTIONS:
-    config_parser.add_section(section)
-
-for section in ODOO_CONFIG_SECTIONS:
-    for config in toml_config[section]:
+    for config in CONFIG_MAPPER[section]:
         value = ""
         try:
             # official odoo config
             config_type = config_maps[config].type
             if config_type == "int":
-                value = int(toml_config[section][config])
+                value = int(CONFIG_MAPPER[section][config])
             elif config_type == "float":
-                value = float(toml_config[section][config])
+                value = float(CONFIG_MAPPER[section][config])
             else:
-                value = str(toml_config[section][config])
+                value = str(CONFIG_MAPPER[section][config])
         except Exception:
-            # non represented config
+            # non represented odoo config
             try:
                 # numericable first
-                value = int(toml_config[section][config])
+                value = int(CONFIG_MAPPER[section][config])
             except Exception:
-                value = toml_config[section][config]
+                value = CONFIG_MAPPER[section][config]
         finally:
-            config_parser[section][config] = str(value)
+            config_parser[section][config] = str(value).replace('\n', '')
 
 
 if __name__ == "__main__":

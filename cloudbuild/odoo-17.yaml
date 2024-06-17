@@ -1,0 +1,72 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        docker pull -q $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0 || exit 0
+    id: Cache
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0
+      - -t
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:$COMMIT_SHA
+      - --cache-from
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0
+      - .
+      - -f
+      - Dockerfile
+    id: Build
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME
+      - --all-tags
+    id: Push
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: "bash"
+    args:
+      - -c
+      - |
+        curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/latest/dist_linux.tar.gz
+        tar -xvf ds.tar.gz
+        mv dist_linux/slim /usr/local/bin/
+        mv dist_linux/slim-sensor /usr/local/bin/
+        slim build \
+          --expose 8080 \
+          --include-bin /bin/wkhtmltopdf \
+          --include-bin /bin/wkhtmltoimage \
+          --include-bin /bin/libwkhtmltox.so \
+          --include-bin /bin/libwkhtmltox.so.0 \
+          --include-bin /bin/libwkhtmltox.so.0.12 \
+          --include-bin /bin/libwkhtmltox.so.0.12.6 \
+          --include-bin /lib/libssl.so.1.1 \
+          --include-bin /lib/libcrypto.so.1.1 \
+          --include-path /usr/local/bin \
+          --include-path /usr/local/lib \
+          --include-path /usr/share/fonts \
+          --include-path /var/lib/nginx \
+          --include-path /mnt \
+          --sensor-ipc-mode proxy \
+          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0-slim \
+          --sensor-ipc-endpoint $(docker network inspect bridge -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' | cut -f1) $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0
+    id: BuildSlim
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0-slim
+    id: PushSlim
+
+
+options:
+  substitutionOption: ALLOW_LOOSE
+
+substitutions:
+  _DEPLOY_REGION: asia-southeast1
+  _AR_HOSTNAME: asia.gcr.io
+  _AR_NAME: odoo
