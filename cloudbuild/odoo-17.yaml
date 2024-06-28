@@ -52,8 +52,3 @@ steps:
 
 options:
   substitutionOption: ALLOW_LOOSE
-
-substitutions:
-  _DEPLOY_REGION: asia-southeast1
-  _AR_HOSTNAME: asia-docker.pkg.dev
-  _AR_NAME: 17-ce

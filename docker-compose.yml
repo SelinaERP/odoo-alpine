@@ -1,34 +1,34 @@
 services:
 
-  odoo17-database:
+  odoo17-ce-db:
     image: postgres:15
-    container_name: odoo17-database
+    container_name: odoo17-ce-db
     ports:
       - "5432:5432"
     env_file:
       - .env
     volumes:
-      - odoo17-database-data:$PGDATA
+      - odoo17-ce-db-data:$PGDATA
 
-  odoo17-erp:
+  odoo17-ce-erp:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: odoo17-erp
+    container_name: odoo17-ce-erp
     ports:
       - "80:8080"
     env_file:
       - .env
     tty: true
     depends_on:
-      - odoo17-database
+      - odoo17-ce-db
     links:
-      - odoo17-database
+      - odoo17-ce-db
     volumes:
-      - odoo17-erp-data:/mnt
+      - odoo17-ce-erp-data:/mnt
     platform: linux/amd64
 
 volumes:
-  odoo17-database-data:
+  odoo17-ce-db-data:
     driver: local
-  odoo17-erp-data: {}
+  odoo17-ce-erp-data: {}
