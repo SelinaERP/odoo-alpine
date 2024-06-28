@@ -8,15 +8,24 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - build
-      - -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest
-      - -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:$COMMIT_SHA
-      - --cache-from $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:lates
-      - . -f Dockerfile
+      - -t
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME$_VERSION_NAME:latest
+      - -t
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME$_VERSION_NAME:$COMMIT_SHA
+      - --cache-from
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:lates
+      - .
+      - -f
+      - Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME --all-tags
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME
+      - --all-tags
     id: Push
   - name: gcr.io/cloud-builders/docker
     entrypoint: 'bash'
