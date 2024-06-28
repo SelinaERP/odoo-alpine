@@ -10,10 +10,10 @@ steps:
       - build
       - -t
       - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME$_VERSION_NAME:latest
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
       - -t
       - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME$_VERSION_NAME:$COMMIT_SHA
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:$COMMIT_SHA
       - --cache-from
       - >-
         $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
