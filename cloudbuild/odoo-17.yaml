@@ -3,7 +3,7 @@ steps:
     entrypoint: 'bash'
     args:
       - -c
-      - docker pull -q $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest || exit 0
+      - docker pull -q $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest || exit 0
     id: Cache
   - name: gcr.io/cloud-builders/docker
     args:
@@ -11,12 +11,12 @@ steps:
         build \
         -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest \
         -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:$COMMIT_SHA \
-        --cache-from $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest \
+        --cache-from $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest \
         . -f Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
-      - push $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME --all-tags
+      - push $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME --all-tags
     id: Push
   - name: gcr.io/cloud-builders/docker
     entrypoint: 'bash'
@@ -43,12 +43,12 @@ steps:
           --include-path /var/lib/nginx \
           --include-path /mnt \
           --sensor-ipc-mode proxy \
-          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:slim \
-          --sensor-ipc-endpoint $(docker network inspect bridge -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' | cut -f1) $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest
+          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim \
+          --sensor-ipc-endpoint $(docker network inspect bridge -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' | cut -f1) $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
     id: BuildSlim
   - name: gcr.io/cloud-builders/docker
     args:
-      - push $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0-slim
+      - push $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:17.0-slim
     id: PushSlim
 
 options:
