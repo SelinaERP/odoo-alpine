@@ -22,12 +22,6 @@ steps:
       - Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
-    args:
-      - push
-      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME
-      - --all-tags
-    id: Push
-  - name: gcr.io/cloud-builders/docker
     entrypoint: 'bash'
     args:
       - -c
@@ -59,8 +53,9 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim
-    id: PushSlim
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME
+      - --all-tags
+    id: Push
 
 options:
   substitutionOption: ALLOW_LOOSE
