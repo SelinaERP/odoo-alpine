@@ -31,7 +31,7 @@ steps:
         mv dist_linux/slim /usr/local/bin/
         mv dist_linux/slim-sensor /usr/local/bin/
         slim build \
-          --expose 8080 \
+          --http-probe=false \
           --include-bin /bin/wkhtmltopdf \
           --include-bin /bin/wkhtmltoimage \
           --include-bin /bin/libwkhtmltox.so \
