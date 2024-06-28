@@ -58,7 +58,7 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:17.0-slim
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim
     id: PushSlim
 
 options:
