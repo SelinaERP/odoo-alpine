@@ -1,5 +1,5 @@
-FROM python:3.10-alpine as builder
-LABEL maintainer="Fanani M. Ihsan"
+FROM python:3.11-alpine as builder
+LABEL maintainer="fanani.mi@gmail.com"
 
 RUN echo "Build Odoo Community Edition"
 

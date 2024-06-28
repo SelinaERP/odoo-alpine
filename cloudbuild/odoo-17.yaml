@@ -3,33 +3,22 @@ steps:
     entrypoint: 'bash'
     args:
       - -c
-      - |
-        docker pull -q $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0 || exit 0
+      - docker pull -q $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest || exit 0
     id: Cache
   - name: gcr.io/cloud-builders/docker
     args:
-      - build
-      - -t
-      - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0
-      - -t
-      - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:$COMMIT_SHA
-      - --cache-from
-      - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0
-      - .
-      - -f
-      - Dockerfile
+      - |
+        build \
+        -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest \
+        -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:$COMMIT_SHA \
+        . -f Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
-      - push
-      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME
-      - --all-tags
+      - push $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME --all-tags
     id: Push
   - name: gcr.io/cloud-builders/docker
-    entrypoint: "bash"
+    entrypoint: 'bash'
     args:
       - -c
       - |
@@ -53,20 +42,18 @@ steps:
           --include-path /var/lib/nginx \
           --include-path /mnt \
           --sensor-ipc-mode proxy \
-          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0-slim \
-          --sensor-ipc-endpoint $(docker network inspect bridge -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' | cut -f1) $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0
+          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:slim \
+          --sensor-ipc-endpoint $(docker network inspect bridge -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' | cut -f1) $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest
     id: BuildSlim
   - name: gcr.io/cloud-builders/docker
     args:
-      - push
-      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0-slim
+      - push $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:17.0-slim
     id: PushSlim
-
 
 options:
   substitutionOption: ALLOW_LOOSE
 
 substitutions:
   _DEPLOY_REGION: asia-southeast1
-  _AR_HOSTNAME: asia.gcr.io
-  _AR_NAME: odoo
+  _AR_HOSTNAME: asia-docker.pkg.dev
+  _AR_NAME: 17-ce
