@@ -16,7 +16,7 @@ steps:
         $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME$_VERSION_NAME:$COMMIT_SHA
       - --cache-from
       - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:lates
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
       - .
       - -f
       - Dockerfile
