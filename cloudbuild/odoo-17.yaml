@@ -11,6 +11,7 @@ steps:
         build \
         -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest \
         -t $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:$COMMIT_SHA \
+        --cache-from $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME:latest \
         . -f Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
