@@ -39,7 +39,6 @@ RUN apk add -q --no-cache \
     npm \
     openldap-dev \
     postgresql-dev \
-    python3 \
     py3-pip \
     python3-dev \
     rsync \
