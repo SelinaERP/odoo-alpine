@@ -114,8 +114,6 @@ COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /bin /bin
 COPY --from=builder /usr/bin /usr/bin
 COPY --from=builder /usr/local/bin /usr/local/bin
-COPY --from=builder /sbin /sbin
-COPY --from=builder /usr/sbin /usr/sbin
 COPY --from=builder --chown=nginx:nginx /mnt /mnt
 
 # Copy entire supervisor configurations
