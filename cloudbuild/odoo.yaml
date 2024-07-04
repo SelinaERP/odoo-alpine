@@ -1,20 +1,11 @@
 steps:
   - name: gcr.io/cloud-builders/docker
-    entrypoint: 'bash'
-    args:
-      - -c
-      - docker pull -q $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest || exit 0
-    id: Cache
-  - name: gcr.io/cloud-builders/docker
     args:
       - build
       - -t
       - >-
         $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
       - -t
-      - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:$SHORT_SHA
-      - --cache-from
       - >-
         $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
       - .
