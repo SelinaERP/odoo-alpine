@@ -89,32 +89,25 @@ ENV LANG C.UTF-8
 ENV ODOO_VERSION 17.0
 ENV ODOO_RC /etc/odoo/odoo.conf
 
+# Copy base libs
+COPY --from=builder /mnt /mnt
+COPY --from=builder /bin /bin
+COPY --from=builder /lib /lib
+COPY --from=builder /usr/bin /usr/bin
+COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /usr/share/fonts /usr/share/fonts
+COPY --from=builder /var/lib /var/lib
+
 # Install some dependencies
 RUN apk add -q --no-cache \
-    bash \
-    fontconfig \
-    font-noto-cjk \
-    freetype \
     nginx \
     supervisor \
-    syslog-ng \
-    ttf-dejavu \
-    ttf-droid \
-    ttf-freefont \
-    ttf-liberation
+    syslog-ng
 
 # Change the ownership working directory
 RUN chown nginx:nginx -R /mnt
-
-# Copy base libs
-COPY --from=builder /lib /lib
-COPY --from=builder /var/lib /var/lib
-COPY --from=builder /usr/lib /usr/lib
-COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /bin /bin
-COPY --from=builder /usr/bin /usr/bin
-COPY --from=builder /usr/local/bin /usr/local/bin
-COPY --from=builder --chown=nginx:nginx /mnt /mnt
 
 # Copy entire supervisor configurations
 COPY ./etc/ /etc/

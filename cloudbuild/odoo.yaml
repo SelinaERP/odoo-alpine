@@ -34,7 +34,7 @@ steps:
           --include-path /usr/local/bin \
           --include-path /usr/local/lib \
           --include-path /usr/share/fonts \
-          --include-path var/lib/nginx \
+          --include-path /var/lib \
           --sensor-ipc-mode proxy \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim \
