@@ -7,7 +7,7 @@ steps:
         $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
       - -t
       - >-
-        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:$SHORT_SHA
       - .
       - -f
       - Dockerfile
