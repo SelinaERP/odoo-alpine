@@ -99,7 +99,7 @@ COPY --from=builder /usr/lib /usr/lib
 COPY --from=builder /usr/sbin /usr/sbin
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /usr/share/fonts /usr/share/fonts
+COPY --from=builder /usr/share /usr/share
 COPY --from=builder /var/lib /var/lib
 
 # Install some dependencies

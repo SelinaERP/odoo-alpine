@@ -33,7 +33,7 @@ steps:
           --include-path /usr/sbin \
           --include-path /usr/local/bin \
           --include-path /usr/local/lib \
-          --include-path /usr/share/fonts \
+          --include-path /usr/share \
           --include-path /var/lib \
           --sensor-ipc-mode proxy \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \
