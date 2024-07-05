@@ -118,6 +118,4 @@ COPY ./entrypoint.sh /entrypoint.sh
 
 # Expose web service
 EXPOSE 8080
-
-WORKDIR /mnt
 ENTRYPOINT ["/entrypoint.sh"]
