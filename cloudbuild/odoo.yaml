@@ -23,7 +23,6 @@ steps:
         mv dist_linux/slim-sensor /usr/local/bin/
         slim build \
           --http-probe=false \
-          --include-bin  /write_config.py \
           --include-path /etc \
           --include-path /mnt \
           --include-path /bin \

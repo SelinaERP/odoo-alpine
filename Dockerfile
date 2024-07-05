@@ -110,15 +110,13 @@ RUN apk add -q --no-cache \
     syslog-ng
 
 # Change the ownership working directory
+COPY ./write_config.py /mnt/write_config.py
 RUN chown nginx:nginx -R /mnt
 
 # Copy entire supervisor configurations
 COPY ./etc/ /etc/
 
-# Copy init script
-COPY ./write_config.py /write_config.py
-COPY ./entrypoint.sh /entrypoint.sh
-
 # Expose web service
+COPY ./entrypoint.sh /entrypoint.sh
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]

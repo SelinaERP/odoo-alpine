@@ -2,7 +2,7 @@
 echo Running Odoo...
 
 # run script to set/create new odoo.conf
-python /write_config.py
+python /mnt/write_config.py
 
 export args="$@"
 if [ -z "$args" ]
