@@ -93,8 +93,10 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 COPY --from=builder /mnt /mnt
 COPY --from=builder /bin /bin
 COPY --from=builder /lib /lib
+COPY --from=builder /sbin /sbin
 COPY --from=builder /usr/bin /usr/bin
 COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/sbin /usr/sbin
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/share/fonts /usr/share/fonts
