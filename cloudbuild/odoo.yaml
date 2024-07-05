@@ -23,19 +23,18 @@ steps:
         mv dist_linux/slim-sensor /usr/local/bin/
         slim build \
           --http-probe=false \
-          --include-bin /bin/wkhtmltopdf \
-          --include-bin /bin/wkhtmltoimage \
-          --include-bin /bin/libwkhtmltox.so \
-          --include-bin /bin/libwkhtmltox.so.0 \
-          --include-bin /bin/libwkhtmltox.so.0.12 \
-          --include-bin /bin/libwkhtmltox.so.0.12.6 \
-          --include-bin /lib/libssl.so.1.1 \
-          --include-bin /lib/libcrypto.so.1.1 \
+          --include-path /entrypoint.sh /entrypoint.sh \
+          --include-path /write_config.py /write_config.py \
+          --include-path /etc \
+          --include-path /mnt \
+          --include-path /bin \
+          --include-path /lib \
+          --include-path /usr/bin \
+          --include-path /usr/lib \
           --include-path /usr/local/bin \
           --include-path /usr/local/lib \
           --include-path /usr/share/fonts \
-          --include-path /var/lib/nginx \
-          --include-path /mnt \
+          --include-path var/lib/nginx \
           --sensor-ipc-mode proxy \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim \
