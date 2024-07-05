@@ -23,6 +23,7 @@ steps:
         mv dist_linux/slim-sensor /usr/local/bin/
         slim build \
           --include-path /bin \
+          --include-path /etc \
           --include-path /lib \
           --include-path /mnt \
           --include-path /sbin \
