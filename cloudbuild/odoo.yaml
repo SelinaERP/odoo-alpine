@@ -22,19 +22,13 @@ steps:
         mv dist_linux/slim /usr/local/bin/
         mv dist_linux/slim-sensor /usr/local/bin/
         slim build \
-          --http-probe=false \
-          --include-path /etc \
-          --include-path /mnt \
           --include-path /bin \
           --include-path /lib \
+          --include-path /mnt \
           --include-path /sbin \
-          --include-path /usr/bin \
-          --include-path /usr/lib \
-          --include-path /usr/sbin \
-          --include-path /usr/local/bin \
-          --include-path /usr/local/lib \
-          --include-path /usr/share \
-          --include-path /var/lib \
+          --include-path /usr \
+          --include-path /var \
+          --http-probe=false \
           --sensor-ipc-mode proxy \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim \

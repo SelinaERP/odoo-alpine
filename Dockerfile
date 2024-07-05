@@ -91,17 +91,12 @@ ENV ODOO_VERSION 17.0
 ENV ODOO_RC /etc/odoo/odoo.conf
 
 # Copy base libs
-COPY --from=builder /mnt /mnt
 COPY --from=builder /bin /bin
 COPY --from=builder /lib /lib
+COPY --from=builder /mnt /mnt
 COPY --from=builder /sbin /sbin
-COPY --from=builder /usr/bin /usr/bin
-COPY --from=builder /usr/lib /usr/lib
-COPY --from=builder /usr/sbin /usr/sbin
-COPY --from=builder /usr/local/bin /usr/local/bin
-COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /usr/share /usr/share
-COPY --from=builder /var/lib /var/lib
+COPY --from=builder /usr /usr
+COPY --from=builder /var /var
 
 # Install some dependencies
 RUN apk add -q --no-cache \
