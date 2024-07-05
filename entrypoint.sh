@@ -50,5 +50,6 @@ done
 source /etc/profile
 
 # setup supervisord
+mkdir -p /run/nginx && chown nginx:nginx -R /run/nginx
 sed -i "s#command = odoo.sh.*#command = odoo.sh $args#g" /etc/supervisor/conf.d/odoo.conf
 supervisord --nodaemon --configuration /etc/supervisord.conf

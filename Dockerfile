@@ -27,6 +27,7 @@ RUN apk add -q --no-cache \
     libjpeg-turbo-dev \
     libpng \
     libpng-dev \
+    libpq \
     libpq-dev \
     libssl3 \
     libstdc++ \
