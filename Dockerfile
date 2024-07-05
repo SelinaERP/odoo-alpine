@@ -89,8 +89,6 @@ ENV LANG C.UTF-8
 ENV ODOO_VERSION 17.0
 ENV ODOO_RC /etc/odoo/odoo.conf
 
-WORKDIR /
-
 # Copy base libs
 COPY --from=builder /mnt /mnt
 COPY --from=builder /bin /bin
@@ -104,6 +102,7 @@ COPY --from=builder /var/lib /var/lib
 
 # Install some dependencies
 RUN apk add -q --no-cache \
+    bash \
     nginx \
     supervisor \
     syslog-ng
