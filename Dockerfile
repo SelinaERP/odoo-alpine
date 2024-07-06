@@ -104,10 +104,18 @@ COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /lib/libcrypto.so
 # Install some dependencies
 RUN apk add -q --no-cache \
     bash \
+    fontconfig \
+    font-noto-cjk \
+    freetype \
     libpq \
+    libxrender \
     nginx \
     supervisor \
-    syslog-ng
+    syslog-ng \
+    ttf-dejavu \
+    ttf-droid \
+    ttf-freefont \
+    ttf-liberation
 
 # Change the ownership working directory
 COPY ./write_config.py /mnt/write_config.py
