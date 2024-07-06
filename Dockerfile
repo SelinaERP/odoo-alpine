@@ -102,6 +102,7 @@ COPY --from=builder /var /var
 # Install some dependencies
 RUN apk add -q --no-cache \
     bash \
+    libpq \
     nginx \
     supervisor \
     syslog-ng
