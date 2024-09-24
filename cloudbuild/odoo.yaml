@@ -1,0 +1,46 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
+      - -t
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:$SHORT_SHA
+      - .
+      - -f
+      - Dockerfile
+    id: Build
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/latest/dist_linux.tar.gz
+        tar -xvf ds.tar.gz
+        mv dist_linux/slim /usr/local/bin/
+        mv dist_linux/slim-sensor /usr/local/bin/
+        slim build \
+          --include-path /bin \
+          --include-path /etc \
+          --include-path /lib \
+          --include-path /mnt \
+          --include-path /sbin \
+          --include-path /usr \
+          --include-path /var \
+          --http-probe=false \
+          --sensor-ipc-mode proxy \
+          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \
+          --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim \
+          --sensor-ipc-endpoint $(docker network inspect bridge -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' | cut -f1) $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:latest
+    id: BuildSlim
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME
+      - --all-tags
+    id: Push
+
+options:
+  substitutionOption: ALLOW_LOOSE
