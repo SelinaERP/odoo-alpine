@@ -68,7 +68,7 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
 
 # Add some scripts
-ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/entrypoint.sh /usr/local/bin/odoo.sh
+ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/entrypoint.sh /entrypoint.sh
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/wait-for-psql.py /usr/local/bin/wait-for-psql.py
 RUN chmod 755 /usr/local/bin/odoo.sh && chmod 755 /usr/local/bin/wait-for-psql.py
 
@@ -86,7 +86,6 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 # Copy base libs
 COPY --from=builder /bin /bin
 COPY --from=builder /lib /lib
-COPY --from=builder /mnt /mnt
 COPY --from=builder /sbin /sbin
 COPY --from=builder /usr /usr
 COPY --from=builder /var /var
@@ -117,14 +116,15 @@ RUN apk add -q --no-cache \
     ttf-freefont \
     ttf-liberation
 
-# Change the ownership working directory
-COPY ./write_config.py /mnt/write_config.py
-RUN chown nginx:nginx -R /mnt
+# Add Odoo community source code
+COPY --from=builder --chown=nginx:nginx /mnt /mnt
+COPY --from=builder /entrypoint.sh /entrypoint.sh
+COPY ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
 
 # Copy entire supervisor configurations
 COPY ./etc/ /etc/
 
 # Expose web service
-COPY ./entrypoint.sh /entrypoint.sh
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]

@@ -29,6 +29,7 @@ steps:
           --include-path /sbin \
           --include-path /usr \
           --include-path /var \
+          --include-path /entrypoint.sh \
           --http-probe=false \
           --sensor-ipc-mode proxy \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \
