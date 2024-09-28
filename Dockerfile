@@ -73,8 +73,8 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
 
 # Fix alpine python path
-COPY ./usr/local/bin/odoo.sh /usr/local/bin/odoo.sh
 COPY ./usr/local/bin/wait-for-psql.py /usr/local/bin/wait-for-psql.py
+COPY ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
 
 # Clear Installation cache
 RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
@@ -120,11 +120,11 @@ COPY --from=builder --chown=nginx:nginx /mnt /mnt
 COPY ./etc/ /etc/
 
 # Copy init script
-COPY ./write_config.py /write_config.py
 COPY ./entrypoint.sh /entrypoint.sh
 
 # Expose web service
 EXPOSE 8080
-
-WORKDIR /mnt
+# Prepare config file
 ENTRYPOINT ["/entrypoint.sh"]
+# Run supervisord
+CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]

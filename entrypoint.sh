@@ -1,54 +1,52 @@
 #!/bin/bash
-echo Running Odoo...
 
-# run script to set/create new odoo.conf
-python /write_config.py
+set -e
 
-export args="$@"
-if [ -z "$args" ]
-then
-    export args=--
+# prepare config
+write-config.py
+
+if [ -v PASSWORD_FILE ]; then
+    PASSWORD="$(< $PASSWORD_FILE)"
 fi
 
-# Init system variable
-SHORT=r:,w:,d:,
-LONG=db_host:,db_port:,db_user:,db_password:,
-OPTS=$(getopt -a --options $SHORT --longoptions $LONG "$@")
+# set the postgres database host, port, user and password according to the environment
+# and pass them as arguments to the odoo process if not present in the config file
+: ${HOST:=${DB_PORT_5432_TCP_ADDR:='db'}}
+: ${PORT:=${DB_PORT_5432_TCP_PORT:=5432}}
+: ${USER:=${DB_ENV_POSTGRES_USER:=${POSTGRES_USER:='odoo'}}}
+: ${PASSWORD:=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo'}}}
 
-eval set -- "$OPTS"
+DB_ARGS=()
+function check_config() {
+    param="$1"
+    value="$2"
+    if grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_RC" ; then
+        value=$(grep -E "^\s*\b${param}\b\s*=" "$ODOO_RC" |cut -d " " -f3|sed 's/["\n\r]//g')
+    fi;
+    DB_ARGS+=("--${param}")
+    DB_ARGS+=("${value}")
+}
+check_config "db_host" "$HOST"
+check_config "db_port" "$PORT"
+check_config "db_user" "$USER"
+check_config "db_password" "$PASSWORD"
 
-while :
-do
-  case "$1" in
-    --db_host )
-      sed -i "s/: \${DB_HOST:='localhost'}/: \${DB_HOST:='$2'}/g" /etc/profile.d/odoo.sh
-      shift 2
-      ;;
-    --db_port )
-      sed -i "s/: \${DB_PORT:=5432}/: \${DB_PORT:=$2}/g" /etc/profile.d/odoo.sh
-      shift 2
-      ;;
-    -r | --db_user )
-      sed -i "s/: \${DB_USER:='odoo'}/: \${DB_USER:='$2'}/g" /etc/profile.d/odoo.sh
-      shift 2
-      ;;
-    -w | --db_password )
-      sed -i "s/: \${DB_PASSWORD:='odoo'}/: \${DB_PASSWORD:='$2'}/g" /etc/profile.d/odoo.sh
-      shift 2
-      ;;
-    - | -- )
-      shift;
-      break
-      ;;
+case "$1" in
+    -- | odoo)
+        shift
+        if [[ "$1" == "scaffold" ]] ; then
+            exec odoo "$@"
+        else
+            wait-for-psql.py ${DB_ARGS[@]} --timeout=30
+            exec odoo "$@" "${DB_ARGS[@]}"
+        fi
+        ;;
+    -*)
+        wait-for-psql.py ${DB_ARGS[@]} --timeout=30
+        exec odoo "$@" "${DB_ARGS[@]}"
+        ;;
     *)
-      echo "Unexpected option: $1"
-      break
-      ;;
-  esac
-done
+        exec "$@"
+esac
 
-source /etc/profile
-
-# setup supervisord
-sed -i "s#command = odoo.sh.*#command = odoo.sh $args#g" /etc/supervisor/conf.d/odoo.conf
-supervisord --nodaemon --configuration /etc/supervisord.conf
+exit 1
