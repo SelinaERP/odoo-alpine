@@ -70,7 +70,7 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
 # Add some scripts
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/entrypoint.sh /entrypoint.sh
 ADD https://raw.githubusercontent.com/odoo/docker/master/${ODOO_VERSION}/wait-for-psql.py /usr/local/bin/wait-for-psql.py
-RUN chmod 755 /usr/local/bin/odoo.sh && chmod 755 /usr/local/bin/wait-for-psql.py
+RUN chmod 755 /entrypoint.sh && chmod 755 /usr/local/bin/wait-for-psql.py
 
 # Clear Installation cache
 RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
@@ -120,9 +120,13 @@ RUN apk add -q --no-cache \
 COPY --from=builder --chown=nginx:nginx /mnt /mnt
 COPY --from=builder /entrypoint.sh /entrypoint.sh
 COPY ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
+RUN sed -i "s/set -e/set -e \nwrite-config.py/g" /entrypoint.sh
 
 # Copy entire supervisor configurations
 COPY ./etc/ /etc/
+
+# Create Application Directory
+RUN mkdir /var/lib/odoo && chown nginx:nginx -R /var/lib/odoo
 
 # Expose web service
 EXPOSE 8080
