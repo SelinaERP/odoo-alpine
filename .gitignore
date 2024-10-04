@@ -51,5 +51,8 @@ Thumbs.db
 # docker-compose.yml
 .env
 
+# temporay files
+tmp
+
 # odoo ignored files
 odoo.conf
