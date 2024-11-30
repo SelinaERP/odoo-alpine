@@ -16,7 +16,8 @@ services:
       dockerfile: Dockerfile
     container_name: odoo17-ce-erp
     ports:
-      - "80:8080"
+      - "8069:8069"
+      - "8079:8079"
     env_file:
       - .env
     tty: true

@@ -108,27 +108,26 @@ RUN apk add -q --no-cache \
     freetype \
     libpq \
     libxrender \
-    nginx \
-    supervisor \
-    syslog-ng \
     ttf-dejavu \
     ttf-droid \
     ttf-freefont \
     ttf-liberation
 
-# Add Odoo community source code
-COPY --from=builder --chown=nginx:nginx /mnt /mnt
-COPY --from=builder /entrypoint.sh /entrypoint.sh
-COPY ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
-RUN sed -i "s/set -e/set -e \nwrite-config.py/g" /entrypoint.sh
+# prepare default user
+RUN groupadd -g 1000 odoo
+RUN useradd  -u 1000 -g odoo -m -s /bin/bash odoo
 
-# Copy entire supervisor configurations
+# Copy all necessary code, script, and config
 COPY ./etc/ /etc/
+COPY --from=builder --chown=odoo:odoo /mnt /mnt
+COPY --from=builder --chown=odoo:odoo /entrypoint.sh /entrypoint.sh
+COPY --chown=odoo:odoo ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
+RUN sed -i "s/set -e/set -e \nwrite-config.py/g" /entrypoint.sh
+RUN mkdir /var/lib/odoo && chown odoo:odoo -R /var/lib/odoo
 
-# Create Application Directory
-RUN mkdir /var/lib/odoo && chown nginx:nginx -R /var/lib/odoo
 
 # Expose web service
-EXPOSE 8080
+USER odoo
+EXPOSE 8069 8072
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
+CMD ["odoo"]
