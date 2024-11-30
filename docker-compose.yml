@@ -11,23 +11,26 @@ services:
       - odoo17-ce-db-data:$PGDATA
 
   odoo17-ce-erp:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: asia.gcr.io/dakonerp-com/odoo/17-ce:slim-alpha
     container_name: odoo17-ce-erp
-    ports:
-      - "8069:8069"
-      - "8079:8079"
     env_file:
       - .env
     tty: true
     depends_on:
       - odoo17-ce-db
-    links:
-      - odoo17-ce-db
     volumes:
-      - odoo17-ce-erp-data:/mnt
+      - odoo17-ce-erp-data:/var/lib/odoo
     platform: linux/amd64
+
+  odoo17-ce-web:
+    image: nginx
+    container_name: odoo17-ce-web
+    ports:
+      - "80:8080"
+    depends_on:
+      - odoo17-ce-erp
+    volumes:
+      - ./etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
   odoo17-ce-db-data:

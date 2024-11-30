@@ -43,6 +43,7 @@ RUN apk add -q --no-cache \
     postgresql-dev \
     py3-pip \
     python3-dev \
+    sassc \
     rsync \
     ttf-dejavu \
     ttf-droid \
