@@ -114,8 +114,17 @@ RUN apk add -q --no-cache \
     ttf-liberation
 
 # prepare default user
-RUN groupadd -g 1000 odoo
-RUN useradd  -u 1000 -g odoo -m -s /bin/bash odoo
+RUN addgroup \
+    --gid 100 \
+    odoo
+RUN adduser \
+    --uid 100 \
+    --ingroup odoo \
+    --no-create-home \
+    --disabled-password \
+    --gecos "Odoo" \
+    --system \
+    odoo
 
 # Copy all necessary code, script, and config
 COPY ./etc/ /etc/
