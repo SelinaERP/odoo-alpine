@@ -89,7 +89,6 @@ COPY --from=builder /bin /bin
 COPY --from=builder /lib /lib
 COPY --from=builder /sbin /sbin
 COPY --from=builder /usr /usr
-COPY --from=builder /var /var
 
 # add wkhtmltopdf
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/wkhtmltopdf /bin/wkhtmltopdf
