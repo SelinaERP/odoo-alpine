@@ -115,10 +115,10 @@ RUN apk add -q --no-cache \
 
 # prepare default user
 RUN addgroup \
-    --gid 100 \
+    --gid 1000 \
     odoo
 RUN adduser \
-    --uid 100 \
+    --uid 1000 \
     --ingroup odoo \
     --no-create-home \
     --disabled-password \
