@@ -37,13 +37,11 @@ RUN apk add -q --no-cache \
     libxml2-dev \
     libxrender \
     libxslt-dev \
-    nodejs \
     npm \
     openldap-dev \
     postgresql-dev \
     py3-pip \
     python3-dev \
-    sassc \
     rsync \
     ttf-dejavu \
     ttf-droid \
@@ -51,8 +49,6 @@ RUN apk add -q --no-cache \
     ttf-liberation \
     zlib \
     zlib-dev
-
-RUN npm install -g less rtlcss postcss
 
 # Create addons directory
 RUN mkdir /mnt/addons
@@ -108,6 +104,7 @@ RUN apk add -q --no-cache \
     freetype \
     libpq \
     libxrender \
+    sassc \
     ttf-dejavu \
     ttf-droid \
     ttf-freefont \
