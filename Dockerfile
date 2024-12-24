@@ -1,4 +1,4 @@
-FROM python:3.11-alpine as builder
+FROM python:3.12-alpine AS builder
 LABEL maintainer="fanani.mi@gmail.com"
 
 RUN echo "Build Odoo Community Edition"
@@ -37,7 +37,6 @@ RUN apk add -q --no-cache \
     libxml2-dev \
     libxrender \
     libxslt-dev \
-    nodejs \
     npm \
     openldap-dev \
     postgresql-dev \
@@ -50,8 +49,6 @@ RUN apk add -q --no-cache \
     ttf-liberation \
     zlib \
     zlib-dev
-
-RUN npm install -g less rtlcss postcss
 
 # Create addons directory
 RUN mkdir /mnt/addons
@@ -77,7 +74,7 @@ RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*
     find /mnt/addons \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
     rm -rf /build
 
-FROM python:3.11-alpine as main
+FROM python:3.12-alpine AS main
 
 ENV LANG C.UTF-8
 ENV ODOO_VERSION 17.0
@@ -88,17 +85,16 @@ COPY --from=builder /bin /bin
 COPY --from=builder /lib /lib
 COPY --from=builder /sbin /sbin
 COPY --from=builder /usr /usr
-COPY --from=builder /var /var
 
 # add wkhtmltopdf
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/wkhtmltopdf /bin/wkhtmltopdf
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/wkhtmltoimage /bin/wkhtmltoimage
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so /bin/libwkhtmltox.so
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so.0 /bin/libwkhtmltox.so.0
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so.0.12 /bin/libwkhtmltox.so.0.12
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /lib/libssl.so.1.1 /lib/libssl.so.1.1
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.11-0.12.6-full /lib/libcrypto.so.1.1 /lib/libcrypto.so.1.1
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/wkhtmltopdf /bin/wkhtmltopdf
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/wkhtmltoimage /bin/wkhtmltoimage
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox.so /bin/libwkhtmltox.so
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox.so.0 /bin/libwkhtmltox.so.0
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox.so.0.12 /bin/libwkhtmltox.so.0.12
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /lib/libssl.so.1.1 /lib/libssl.so.1.1
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /lib/libcrypto.so.1.1 /lib/libcrypto.so.1.1
 
 # Install some dependencies
 RUN apk add -q --no-cache \
@@ -108,27 +104,37 @@ RUN apk add -q --no-cache \
     freetype \
     libpq \
     libxrender \
-    nginx \
-    supervisor \
-    syslog-ng \
+    sassc \
     ttf-dejavu \
     ttf-droid \
     ttf-freefont \
     ttf-liberation
 
-# Add Odoo community source code
-COPY --from=builder --chown=nginx:nginx /mnt /mnt
-COPY --from=builder /entrypoint.sh /entrypoint.sh
-COPY ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
+# prepare default user
+RUN addgroup \
+    --gid 1000 \
+    odoo
+RUN adduser \
+    --uid 1000 \
+    --ingroup odoo \
+    --no-create-home \
+    --home /var/lib/odoo \
+    --disabled-password \
+    --gecos "Odoo" \
+    --system \
+    odoo
+
+# Copy all necessary code, script, and config
+COPY --from=builder --chown=odoo:odoo /mnt /mnt
+COPY --from=builder --chown=odoo:odoo /entrypoint.sh /entrypoint.sh
+COPY --chown=odoo:odoo ./etc/odoo/odoo.conf /etc/odoo/odoo.conf
+COPY --chown=odoo:odoo ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
 RUN sed -i "s/set -e/set -e \nwrite-config.py/g" /entrypoint.sh
+RUN mkdir /var/lib/odoo && chown odoo:odoo -R /var/lib/odoo
 
-# Copy entire supervisor configurations
-COPY ./etc/ /etc/
-
-# Create Application Directory
-RUN mkdir /var/lib/odoo && chown nginx:nginx -R /var/lib/odoo
 
 # Expose web service
-EXPOSE 8080
+USER odoo
+EXPOSE 8069 8072
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
+CMD ["odoo"]
