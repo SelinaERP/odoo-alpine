@@ -118,6 +118,7 @@ RUN adduser \
     --uid 1000 \
     --ingroup odoo \
     --no-create-home \
+    --home /var/lib/odoo \
     --disabled-password \
     --gecos "Odoo" \
     --system \
