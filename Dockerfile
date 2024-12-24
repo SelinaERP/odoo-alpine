@@ -1,4 +1,4 @@
-FROM python:3.12-alpine as builder
+FROM python:3.12-alpine AS builder
 LABEL maintainer="fanani.mi@gmail.com"
 
 RUN echo "Build Odoo Community Edition"
@@ -74,7 +74,7 @@ RUN find /usr/local \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*
     find /mnt/addons \( -type d -a -name __pycache__ \) -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) -exec rm -rf '{}' + && \
     rm -rf /build
 
-FROM python:3.12-alpine as main
+FROM python:3.12-alpine AS main
 
 ENV LANG C.UTF-8
 ENV ODOO_VERSION 17.0
@@ -126,7 +126,7 @@ RUN adduser \
 # Copy all necessary code, script, and config
 COPY --from=builder --chown=odoo:odoo /mnt /mnt
 COPY --from=builder --chown=odoo:odoo /entrypoint.sh /entrypoint.sh
-COPY --chown=odoo:odoo ./etc/ /etc/
+COPY --chown=odoo:odoo ./etc/odoo/odoo.conf /etc/odoo/odoo.conf
 COPY --chown=odoo:odoo ./usr/local/bin/write-config.py /usr/local/bin/write-config.py
 RUN sed -i "s/set -e/set -e \nwrite-config.py/g" /entrypoint.sh
 RUN mkdir /var/lib/odoo && chown odoo:odoo -R /var/lib/odoo

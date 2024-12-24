@@ -11,7 +11,9 @@ services:
       - odoo17-ce-db-data:$PGDATA
 
   odoo17-ce-erp:
-    image: asia.gcr.io/dakonerp-com/odoo/17-ce:slim-alpha
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: odoo17-ce-erp
     env_file:
       - .env
