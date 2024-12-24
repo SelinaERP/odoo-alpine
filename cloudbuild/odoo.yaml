@@ -17,7 +17,7 @@ steps:
     args:
       - -c
       - |
-        curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/latest/dist_linux.tar.gz
+        curl -L -k -o ds.tar.gz https://downloads.dockerslim.com/releases/latest/dist_linux.tar.gz
         tar -xvf ds.tar.gz
         mv dist_linux/slim /usr/local/bin/
         mv dist_linux/slim-sensor /usr/local/bin/
