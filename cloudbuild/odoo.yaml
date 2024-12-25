@@ -23,15 +23,12 @@ steps:
         mv dist_linux/slim-sensor /usr/local/bin/
         slim build \
           --include-path /bin \
-          --include-path /etc/group \
-          --include-path /etc/passwd \
+          --include-path /etc \
           --include-path /lib \
           --include-path /mnt \
-          --include-path /sbin \
           --include-path /usr \
           --include-path /var/lib/odoo \
           --include-path /entrypoint.sh \
-          --include-path /etc/odoo/odoo.conf \
           --http-probe=false \
           --sensor-ipc-mode proxy \
           --tag $_AR_HOSTNAME/$PROJECT_ID/$_AR_NAME/$_VERSION_NAME:slim-$SHORT_SHA \

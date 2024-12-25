@@ -14,11 +14,6 @@ RUN apk add -q --no-cache \
     bash \
     build-base \
     ca-certificates \
-    fontconfig \
-    font-noto-cjk \
-    freetype \
-    freetype-dev \
-    grep \
     jpeg-dev \
     libev-dev \
     libevent-dev \
@@ -37,16 +32,11 @@ RUN apk add -q --no-cache \
     libxml2-dev \
     libxrender \
     libxslt-dev \
-    npm \
     openldap-dev \
     postgresql-dev \
     py3-pip \
     python3-dev \
     rsync \
-    ttf-dejavu \
-    ttf-droid \
-    ttf-freefont \
-    ttf-liberation \
     zlib \
     zlib-dev
 
@@ -83,7 +73,6 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 # Copy base libs
 COPY --from=builder /bin /bin
 COPY --from=builder /lib /lib
-COPY --from=builder /sbin /sbin
 COPY --from=builder /usr /usr
 
 # add wkhtmltopdf
@@ -95,7 +84,6 @@ COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /lib/libssl.so.1.1 /lib/libssl.so.1.1
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /lib/libcrypto.so.1.1 /lib/libcrypto.so.1.1
-COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /etc/fonts /etc/fonts
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /usr/share/fonts /usr/share/fonts
 
 # Install some dependencies
@@ -103,14 +91,9 @@ RUN apk add -q --no-cache \
     bash \
     fontconfig \
     font-noto-cjk \
-    freetype \
     libpq \
     libxrender \
-    sassc \
-    ttf-dejavu \
-    ttf-droid \
-    ttf-freefont \
-    ttf-liberation
+    sassc
 
 # prepare default user
 RUN addgroup \
