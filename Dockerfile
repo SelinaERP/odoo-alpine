@@ -95,6 +95,8 @@ COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /bin/libwkhtmltox.so.0.12.6 /bin/libwkhtmltox.so.0.12.6
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /lib/libssl.so.1.1 /lib/libssl.so.1.1
 COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /lib/libcrypto.so.1.1 /lib/libcrypto.so.1.1
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /etc/fonts /etc/fonts
+COPY --from=ghcr.io/surnet/alpine-wkhtmltopdf:3.12-0.12.6-full /usr/share/fonts /usr/share/fonts
 
 # Install some dependencies
 RUN apk add -q --no-cache \
