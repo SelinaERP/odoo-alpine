@@ -56,9 +56,11 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     pip3 install -q --upgrade pip && \
     pip3 install -q --upgrade setuptools && \
     echo 'INPUT ( libldap.so )' > /usr/lib/libldap_r.so && \
+    sed -i "/lxml==4.6.5 ; sys_platform != 'win32' and python_version > '3.7'  # min version = 4.5.0 (Focal - with security backports)/d" requirements.txt && \
     sed -i "/gevent==21.8.0 ; python_version > '3.9'  # (Jammy)/d" requirements.txt && \
     sed -i "/greenlet==1.1.2 ; python_version  > '3.9'  # (Jammy)/d" requirements.txt && \
     pip3 install -q --no-cache-dir -r requirements.txt && \
+    pip3 install lxml==5.2.1 -q --no-cache-dir --no-build-isolation && \
     pip3 install gevent==24.2.1 -q --no-cache-dir --no-build-isolation && \
     pip3 install greenlet==3.0.3 -q --no-cache-dir --no-build-isolation && \
     python3 setup.py install && \
