@@ -57,8 +57,10 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     pip3 install -q --upgrade setuptools && \
     echo 'INPUT ( libldap.so )' > /usr/lib/libldap_r.so && \
     sed -i "/gevent==21.8.0 ; python_version > '3.9'  # (Jammy)/d" requirements.txt && \
+    sed -i "/greenlet==1.1.2 ; python_version  > '3.9'  # (Jammy)/d" requirements.txt && \
     pip3 install -q --no-cache-dir -r requirements.txt && \
-    pip3 install gevent==21.8.0 -q --no-cache-dir --no-build-isolation && \
+    pip3 install gevent==24.2.1 -q --no-cache-dir --no-build-isolation && \
+    pip3 install greenlet==3.0.3 -q --no-cache-dir --no-build-isolation && \
     python3 setup.py install && \
     mkdir -p /mnt/addons/community && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
