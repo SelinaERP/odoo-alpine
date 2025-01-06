@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from odoo.tools import config as odoo_config
 
 ODOO_CONFIG_FILE = os.environ['ODOO_RC']
-ODOO_CONFIG_SECTIONS = ["options"]
+ODOO_CONFIG_SECTIONS = os.environ['ODOO_RC_GROUPS'].split(',')
 CONFIG_MAPPER = {}
 
 config_parser = ConfigParser()
