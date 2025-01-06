@@ -115,8 +115,12 @@ RUN apk add -q --no-cache \
     sassc
 
 # prepare default user
+RUN addgroup \
+    --gid 1000 \
+    odoo
 RUN adduser \
     --uid 1000 \
+    --ingroup odoo \
     --home /var/lib/odoo \
     --disabled-password \
     --gecos "Odoo" \
