@@ -56,7 +56,9 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     pip3 install -q --upgrade pip && \
     pip3 install -q --upgrade setuptools && \
     echo 'INPUT ( libldap.so )' > /usr/lib/libldap_r.so && \
+    sed -i "/gevent==21.8.0 ; python_version > '3.9'  # (Jammy)/d" requirements.txt && \
     pip3 install -q --no-cache-dir -r requirements.txt && \
+    pip3 install gevent==21.8.0 -q --no-cache-dir --no-build-isolation && \
     python3 setup.py install && \
     mkdir -p /mnt/addons/community && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
