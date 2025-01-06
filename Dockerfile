@@ -133,7 +133,6 @@ COPY --from=builder --chown=odoo:odoo /entrypoint.sh /entrypoint.sh
 COPY --chown=odoo:odoo /etc/odoo/odoo.conf /etc/odoo/odoo.conf
 COPY --chown=odoo:odoo /usr/local/bin/write-config.py /usr/local/bin/write-config.py
 RUN sed -i "s/set -e/set -e \nwrite-config.py/g" /entrypoint.sh
-RUN mkdir /var/lib/odoo && chown odoo:odoo -R /var/lib/odoo
 
 
 # Expose web service
