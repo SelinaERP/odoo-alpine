@@ -65,6 +65,7 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     pip3 install gevent==24.2.1 -q --no-cache-dir --no-build-isolation && \
     pip3 install greenlet==3.0.3 -q --no-cache-dir --no-build-isolation && \
     pip3 install lxml==5.2.1 -q --no-cache-dir --no-build-isolation && \
+    pip3 install lxml-html-clean -q --no-cache-dir --no-build-isolation && \
     pip3 install psycopg2==2.9.9 -q --no-cache-dir --no-build-isolation && \
     pip3 install reportlab==4.1.0 -q --no-cache-dir --no-build-isolation && \
     python3 setup.py install && \
