@@ -64,9 +64,9 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     pip3 install -q --no-cache-dir -r requirements.txt && \
     pip3 install gevent==24.2.1 -q --no-cache-dir && \
     pip3 install greenlet==3.1.1 -q --no-cache-dir && \
-    pip3 install lxml==4.8.0 -q --no-cache-dir && \
+    pip3 install lxml==4.9.3 -q --no-cache-dir && \
     pip3 install psycopg2==2.9.2 -q --no-cache-dir && \
-    pip3 install reportlab==3.6.8 -q --no-cache-dir && \
+    pip3 install reportlab==4.1.0 -q --no-cache-dir && \
     python3 setup.py install && \
     mkdir -p /mnt/addons/community && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
