@@ -62,11 +62,11 @@ RUN unzip -qq ${ODOO_VERSION}.zip && cd odoo-${ODOO_VERSION} && \
     sed -i "/psycopg2==2.8.5; sys_platform == 'win32' or python_version >= '3.8'/d" requirements.txt && \
     sed -i "/reportlab==3.5.55; python_version >= '3.8'/d" requirements.txt && \
     pip3 install -q --no-cache-dir -r requirements.txt && \
-    pip3 install gevent==22.10.2 -q --no-cache-dir --no-build-isolation && \
-    pip3 install greenlet==2.0.2 -q --no-cache-dir --no-build-isolation && \
-    pip3 install lxml==4.9.3 -q --no-cache-dir --no-build-isolation && \
-    pip3 install psycopg2==2.9.5 -q --no-cache-dir --no-build-isolation && \
-    pip3 install reportlab==3.6.8 -q --no-cache-dir --no-build-isolation && \
+    pip3 install gevent==22.10.2 -q --no-cache-dir && \
+    pip3 install greenlet==2.0.2 -q --no-cache-dir && \
+    pip3 install lxml==4.9.3 -q --no-cache-dir && \
+    pip3 install psycopg2==2.9.5 -q --no-cache-dir && \
+    pip3 install reportlab==3.6.12 -q --no-cache-dir && \
     python3 setup.py install && \
     mkdir -p /mnt/addons/community && \
     rsync -a --exclude={'__pycache__','*.pyc'} ./addons/ /mnt/addons/community/
